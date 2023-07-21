@@ -4,6 +4,7 @@ import 'package:wake_arrival/common/extension/string_extension.dart';
 import 'package:wake_arrival/common/theme/app_color.dart';
 import 'package:wake_arrival/common/widgets/primary_button.dart';
 import 'package:wake_arrival/models/home/presentation/home_constants.dart';
+import 'package:wake_arrival/models/routes/routes_constant.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -45,9 +46,14 @@ class _HomeState extends State<Home> {
               ],
             ),
             const Spacer(),
-            const Center(
-              child: PrimaryButton(
-                title: 'Set Destination',
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushNamed(RouteConstant.search);
+              },
+              child: const Center(
+                child: PrimaryButton(
+                  title: HomeConstants.setDestination,
+                ),
               ),
             ),
             const SizedBox(
@@ -55,7 +61,7 @@ class _HomeState extends State<Home> {
             ),
             const Center(
                 child: PrimaryButton(
-              title: 'View Previous Destinations',
+              title: HomeConstants.viewPreviousDestination,
             )),
             const Spacer(),
           ],
