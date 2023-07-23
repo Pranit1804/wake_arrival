@@ -2,5 +2,6 @@ class RouteConstant {
   RouteConstant._();
 
   static const String home = '/home';
-  static const String search = '/search';
+  static const String searchLandingPage = '/search-landing-page';
+  static const String searchPage = 'search-page';
 }

@@ -48,7 +48,8 @@ class _HomeState extends State<Home> {
             const Spacer(),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed(RouteConstant.search);
+                Navigator.of(context)
+                    .pushNamed(RouteConstant.searchLandingPage);
               },
               child: const Center(
                 child: PrimaryButton(
