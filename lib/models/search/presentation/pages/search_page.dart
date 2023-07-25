@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:mapbox_search/mapbox_search.dart';
 import 'package:wake_arrival/common/constants/app_constants.dart';
 import 'package:wake_arrival/common/constants/layout_constants.dart';
@@ -18,8 +21,20 @@ class _SearchPageState extends State<SearchPage> {
     apiKey: AppConstants.mapBoxApiCode,
     limit: 5,
   );
-  final ValueNotifier<List<MapBoxPlace>> placesNotifier = ValueNotifier([]);
+  final ValueNotifier<List<Placemark>> placesNotifier = ValueNotifier([]);
   final TextEditingController _textController = TextEditingController();
+  String searchedText = '';
+  @override
+  void initState() {
+    super.initState();
+
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (_textController.text != searchedText) {
+        onTextChanged(_textController.text);
+        searchedText = _textController.text;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +60,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   child: PrimaryTextField(
                     textEditingController: _textController,
-                    onTextChanged: onTextChanged,
+                    onTextChanged: (_) {},
                   ),
                 ),
               ],
@@ -59,42 +74,50 @@ class _SearchPageState extends State<SearchPage> {
             width: double.infinity,
             color: AppColor.primaryColor,
             padding: const EdgeInsets.symmetric(
-              horizontal: LayoutConstants.dimen_24,
+              horizontal: LayoutConstants.dimen_12,
               vertical: LayoutConstants.dimen_20,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                singleAutocompleteText(
-                  title: 'WhiteField',
-                  subtitle: 'Banglore',
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [],
                 ),
                 ValueListenableBuilder(
                     valueListenable: placesNotifier,
                     builder: (context, _, __) {
                       return placesNotifier.value.isNotEmpty
-                          ? Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: LayoutConstants.dimen_200,
-                              color: Colors.grey.withOpacity(0.3),
-                              margin:
-                                  const EdgeInsets.only(left: 20, right: 20),
-                              padding: const EdgeInsets.only(
-                                  left: 20, right: 20, top: 10),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: List.generate(
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: List.generate(
                                   placesNotifier.value.length,
-                                  (index) => singleAutocompleteText(
-                                    title:
-                                        placesNotifier.value[index].placeName ??
-                                            "",
-                                    subtitle: '',
-                                  ),
-                                ),
-                              ),
+                                  (index) => Column(
+                                        children: [
+                                          singleAutocompleteText(
+                                            title: placesNotifier
+                                                    .value[index].name ??
+                                                "",
+                                            subtitle: placesNotifier
+                                                    .value[index].locality ??
+                                                "",
+                                          ),
+                                          const SizedBox(
+                                            height: LayoutConstants.dimen_12,
+                                          ),
+                                          Container(
+                                            height: 1,
+                                            width: LayoutConstants.dimen_350,
+                                            margin: const EdgeInsets.only(
+                                                left: LayoutConstants.dimen_24),
+                                            color:
+                                                Colors.white.withOpacity(0.1),
+                                          )
+                                        ],
+                                      )),
                             )
                           : Container();
                     }),
@@ -111,36 +134,65 @@ class _SearchPageState extends State<SearchPage> {
       placesNotifier.value = [];
     }
     if (value.length % 2 == 0) {
-      List<MapBoxPlace>? places = await getPlaces(value);
+      List<Placemark>? places = await getPlaces(value);
       placesNotifier.value = [...places ?? []];
     }
   }
 
-  Future<List<MapBoxPlace>?> getPlaces(String value) async {
+  Future<List<Placemark>?> getPlaces(String value) async {
     List<MapBoxPlace>? places = await placesSearch.getPlaces(value);
-    return places;
+    List<Placemark> placemarks = [];
+    for (var element in places!) {
+      Placemark place =
+          await placemarkFromCoordinates(element.center![1], element.center![0])
+              .then(
+        (value) => value[0],
+      );
+      placemarks.add(place);
+    }
+    return placemarks;
   }
 
   Widget singleAutocompleteText({
     required String title,
     required String subtitle,
   }) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(
-          title,
-          style: AppTextTheme.bodyText1.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
+        Container(
+          height: 24,
+          width: 24,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColor.primaryDarkColor,
+          ),
+          child: Icon(
+            Icons.location_pin,
+            color: Colors.white.withOpacity(0.5),
+            size: 12,
           ),
         ),
-        Text(
-          subtitle,
-          style: AppTextTheme.caption.copyWith(
-            color: Colors.white,
-          ),
+        const SizedBox(
+          width: LayoutConstants.dimen_8,
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: AppTextTheme.bodyText1.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              subtitle,
+              style: AppTextTheme.caption.copyWith(
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ],
     );

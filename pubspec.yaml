@@ -15,6 +15,7 @@ dependencies:
   mapbox_search: ^3.1.0
   flutter_map: ^3.1.0
   latlong2: ^0.8.1
+  geocoding: ^2.1.0
 
 
   

@@ -21,8 +21,7 @@ class _SearchLandingPageState extends State<SearchLandingPage> {
   final ValueNotifier<List<MapBoxPlace>> placesNotifier = ValueNotifier([]);
 
   var placesSearch = PlacesSearch(
-    apiKey:
-        'pk.eyJ1IjoicHJhbml0YmhvZ2FsZSIsImEiOiJja2Fka29rdG4wM3F5MnhveWtrcWl4bXZzIn0.PqBsfK3X0mNxQIFxmSm79g',
+    apiKey: AppConstants.mapBoxApiCode,
     limit: 5,
   );
   @override
@@ -38,14 +37,12 @@ class _SearchLandingPageState extends State<SearchLandingPage> {
             children: [
               TileLayer(
                 urlTemplate: AppConstants.mapBoxStyleTileUrl,
-                userAgentPackageName: 'com.example.app',
               ),
             ],
           ),
           Container(
             color: Colors.black.withOpacity(0.1),
           ),
-
           _clickableSearchBox(),
           // Container(
           //   color: Colors.black.withOpacity(0.5),
