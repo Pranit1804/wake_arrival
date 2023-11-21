@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:mapbox_search/mapbox_search.dart';
+import 'package:mapbox_search/mapbox_search.dart' as ms;
 import 'package:wake_arrival/common/constants/app_constants.dart';
 import 'package:wake_arrival/common/constants/layout_constants.dart';
 import 'package:wake_arrival/common/theme/app_color.dart';
 import 'package:wake_arrival/common/theme/app_text_theme.dart';
 import 'package:wake_arrival/common/widgets/primary_text_field.dart';
+import 'package:wake_arrival/models/routes/routes_constant.dart';
+import 'package:wake_arrival/models/search/presentation/pages/search_landing_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -17,18 +18,18 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  var placesSearch = PlacesSearch(
-    apiKey: AppConstants.mapBoxApiCode,
-    limit: 5,
-  );
-  final ValueNotifier<List<Placemark>> placesNotifier = ValueNotifier([]);
+  late ms.PlacesSearch placesSearch;
+  final ValueNotifier<List<SuggestedPlace>> placesNotifier = ValueNotifier([]);
   final TextEditingController _textController = TextEditingController();
   String searchedText = '';
   @override
   void initState() {
     super.initState();
-
-    Timer.periodic(const Duration(seconds: 2), (timer) {
+    placesSearch = ms.PlacesSearch(
+      apiKey: AppConstants.mapBoxApiCode,
+      limit: 5,
+    );
+    Timer.periodic(const Duration(milliseconds: 400), (timer) {
       if (_textController.text != searchedText) {
         onTextChanged(_textController.text);
         searchedText = _textController.text;
@@ -81,7 +82,7 @@ class _SearchPageState extends State<SearchPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
+                const Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [],
@@ -97,13 +98,24 @@ class _SearchPageState extends State<SearchPage> {
                                   placesNotifier.value.length,
                                   (index) => Column(
                                         children: [
-                                          singleAutocompleteText(
-                                            title: placesNotifier
-                                                    .value[index].name ??
-                                                "",
-                                            subtitle: placesNotifier
-                                                    .value[index].locality ??
-                                                "",
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.pushNamed(
+                                                context,
+                                                RouteConstant.searchLandingPage,
+                                                arguments:
+                                                    SearchLandingPageArgs(
+                                                  searchedLatLng: placesNotifier
+                                                      .value[index].location,
+                                                ),
+                                              );
+                                            },
+                                            child: singleAutocompleteText(
+                                              title: placesNotifier
+                                                  .value[index].mainLocation,
+                                              subtitle: placesNotifier
+                                                  .value[index].completeAddress,
+                                            ),
                                           ),
                                           const SizedBox(
                                             height: LayoutConstants.dimen_12,
@@ -134,28 +146,42 @@ class _SearchPageState extends State<SearchPage> {
       placesNotifier.value = [];
     }
     if (value.length % 2 == 0) {
-      List<Placemark>? places = await getPlaces(value);
+      List<SuggestedPlace>? places = await getPlaces(value);
       placesNotifier.value = [...places ?? []];
     }
   }
 
-  Future<List<Placemark>?> getPlaces(String value) async {
-    List<MapBoxPlace>? places = await placesSearch.getPlaces(value);
-    List<Placemark> placemarks = [];
+  Future<List<SuggestedPlace>?> getPlaces(String value) async {
+    List<ms.MapBoxPlace>? rawplaces = await placesSearch.getPlaces(
+      value,
+      proximity: const ms.LocationIp(),
+    );
+
+    List<ms.MapBoxPlace>? places = await placesSearch.getPlaces(
+      value,
+      proximity: ms.Location(
+        lat: rawplaces![0].center![1],
+        lng: rawplaces[0].center![0],
+      ),
+    );
+
+    List<SuggestedPlace> placemarks = [];
     for (var element in places!) {
-      Placemark place =
-          await placemarkFromCoordinates(element.center![1], element.center![0])
-              .then(
-        (value) => value[0],
-      );
-      placemarks.add(place);
+      placemarks.add(SuggestedPlace(
+        mainLocation: element.text!,
+        completeAddress: element.placeName!,
+        location: ms.Location(
+          lat: element.center![1],
+          lng: element.center![0],
+        ),
+      ));
     }
     return placemarks;
   }
 
   Widget singleAutocompleteText({
-    required String title,
-    required String subtitle,
+    required String? title,
+    required String? subtitle,
   }) {
     return Row(
       children: [
@@ -180,14 +206,14 @@ class _SearchPageState extends State<SearchPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              title,
+              title ?? "",
               style: AppTextTheme.bodyText1.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
               ),
             ),
             Text(
-              subtitle,
+              subtitle ?? "",
               style: AppTextTheme.caption.copyWith(
                 color: Colors.white,
               ),
@@ -197,4 +223,16 @@ class _SearchPageState extends State<SearchPage> {
       ],
     );
   }
+}
+
+class SuggestedPlace {
+  final String mainLocation;
+  final String completeAddress;
+  final ms.Location location;
+
+  SuggestedPlace({
+    required this.mainLocation,
+    required this.completeAddress,
+    required this.location,
+  });
 }

@@ -16,6 +16,7 @@ class _AppState extends State<App> {
       debugShowCheckedModeBanner: false,
       home: const Home(),
       routes: Routes.getAll(),
+      onGenerateRoute: Routes.generateRoute,
     );
   }
 }

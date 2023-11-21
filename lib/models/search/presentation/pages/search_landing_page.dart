@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -6,24 +8,59 @@ import 'package:wake_arrival/common/constants/app_constants.dart';
 import 'package:wake_arrival/common/constants/layout_constants.dart';
 import 'package:wake_arrival/common/theme/app_text_theme.dart';
 import 'package:wake_arrival/models/routes/routes_constant.dart';
-import 'package:wake_arrival/models/search/search_routes.dart';
+import 'package:latlong2/latlong.dart'; // For handling geographical coordinates
+import 'package:google_maps_flutter/google_maps_flutter.dart' as googleMaps;
+
+class SearchLandingPageArgs {
+  final Location? searchedLatLng;
+
+  SearchLandingPageArgs({this.searchedLatLng});
+}
 
 class SearchLandingPage extends StatefulWidget {
-  const SearchLandingPage({super.key});
+  final SearchLandingPageArgs args;
+  const SearchLandingPage({super.key, required this.args});
 
   @override
   State<SearchLandingPage> createState() => _SearchLandingPageState();
 }
 
 class _SearchLandingPageState extends State<SearchLandingPage> {
-  final TextEditingController _textController = TextEditingController();
-
   final ValueNotifier<List<MapBoxPlace>> placesNotifier = ValueNotifier([]);
 
   var placesSearch = PlacesSearch(
     apiKey: AppConstants.mapBoxApiCode,
     limit: 5,
   );
+
+  late double _radiusInPixels;
+  late LatLng latLng;
+
+  @override
+  void initState() {
+    super.initState();
+    setLatLng();
+    _radiusInPixels = _calculateRadiusInPixels(latLng);
+  }
+
+  void setLatLng() {
+    latLng = widget.args.searchedLatLng != null
+        ? LatLng(
+            widget.args.searchedLatLng!.lat,
+            widget.args.searchedLatLng!.lng,
+          )
+        : LatLng(19.0760, 72.8777);
+  }
+
+  void _updateCircleRadius(double zoom) {
+    final double metersPerPixel =
+        156543.03392 * cos(latLng.latitude * pi / 180) / pow(2, zoom);
+
+    setState(() {
+      _radiusInPixels = 1000 / metersPerPixel; // 1km in meters
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,13 +68,27 @@ class _SearchLandingPageState extends State<SearchLandingPage> {
         children: [
           FlutterMap(
             options: MapOptions(
-              center: LatLng(19.0760, 72.8777),
-              zoom: 12.6,
+              center: latLng,
+              zoom: 15,
+              onPositionChanged: (position, hasGesture) {
+                _updateCircleRadius(position.zoom!);
+              },
             ),
             children: [
               TileLayer(
                 urlTemplate: AppConstants.mapBoxStyleTileUrl,
               ),
+              CircleLayer(
+                circles: [
+                  CircleMarker(
+                    point: latLng, // Center of the circle
+                    radius: _radiusInPixels, // Radius in meters (1km)
+                    color: Colors.blue.withOpacity(0.4),
+                    borderStrokeWidth: 2,
+                    borderColor: Colors.blue,
+                  ),
+                ],
+              )
             ],
           ),
           Container(
@@ -97,6 +148,14 @@ class _SearchLandingPageState extends State<SearchLandingPage> {
         ],
       ),
     );
+  }
+
+  double _calculateRadiusInPixels(LatLng latLng) {
+    final double metersPerPixel = 156543.03392 *
+        cos(latLng.latitude * pi / 180) /
+        pow(2, 13); // 13 is the zoom level
+
+    return (2000 / metersPerPixel);
   }
 
   Widget _clickableSearchBox() {

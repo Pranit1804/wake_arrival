@@ -5,7 +5,18 @@ import 'package:wake_arrival/models/search/presentation/pages/search_page.dart';
 
 abstract class SearchRoutes {
   static Map<String, WidgetBuilder> all() => {
-        RouteConstant.searchLandingPage: (context) => const SearchLandingPage(),
         RouteConstant.searchPage: (context) => const SearchPage(),
+      };
+
+  static Map<String, WidgetBuilder> getRoutesWithSettings(
+    RouteSettings settings,
+  ) =>
+      {
+        RouteConstant.searchLandingPage: (context) {
+          final args = settings.arguments as SearchLandingPageArgs?;
+          return SearchLandingPage(
+            args: args ?? SearchLandingPageArgs(),
+          );
+        },
       };
 }

@@ -25,49 +25,60 @@ class _HomeState extends State<Home> {
         ),
         child: Column(
           children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.arrow_back_ios,
-                  color: AppColor.primaryTextColor,
-                  size: LayoutConstants.dimen_18,
-                ),
-                const SizedBox(
-                  width: LayoutConstants.dimen_8,
-                ),
-                Text(
-                  HomeConstants.home.capitalizeFirstLetter(),
-                  style: const TextStyle(
-                    fontSize: LayoutConstants.dimen_20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.primaryTextColor,
-                  ),
-                ),
-              ],
-            ),
+            appBar(),
             const Spacer(),
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context)
-                    .pushNamed(RouteConstant.searchLandingPage);
-              },
-              child: const Center(
-                child: PrimaryButton(
-                  title: HomeConstants.setDestination,
-                ),
-              ),
-            ),
+            setDestinationButton(),
             const SizedBox(
               height: LayoutConstants.dimen_22,
             ),
-            const Center(
-                child: PrimaryButton(
-              title: HomeConstants.viewPreviousDestination,
-            )),
+            viewPreviosDestionations(),
             const Spacer(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget viewPreviosDestionations() {
+    return const Center(
+        child: PrimaryButton(
+      title: HomeConstants.viewPreviousDestination,
+    ));
+  }
+
+  Widget setDestinationButton() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushNamed(RouteConstant.searchLandingPage);
+      },
+      child: const Center(
+        child: PrimaryButton(
+          title: HomeConstants.setDestination,
+        ),
+      ),
+    );
+  }
+
+  Widget appBar() {
+    return Row(
+      children: [
+        const Icon(
+          Icons.arrow_back_ios,
+          color: AppColor.primaryTextColor,
+          size: LayoutConstants.dimen_18,
+        ),
+        const SizedBox(
+          width: LayoutConstants.dimen_8,
+        ),
+        Text(
+          HomeConstants.home.capitalizeFirstLetter(),
+          style: const TextStyle(
+            fontSize: LayoutConstants.dimen_20,
+            fontWeight: FontWeight.w700,
+            color: AppColor.primaryTextColor,
+          ),
+        ),
+      ],
     );
   }
 }
