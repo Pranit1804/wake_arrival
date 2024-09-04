@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mapbox_search/mapbox_search.dart' as ms;
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_search/mapbox_search.dart';
 import 'package:wake_arrival/common/constants/app_constants.dart';
 import 'package:wake_arrival/common/constants/layout_constants.dart';
 import 'package:wake_arrival/common/theme/app_color.dart';
@@ -18,14 +19,14 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late ms.PlacesSearch placesSearch;
+  late SearchBoxAPI placesSearch;
   final ValueNotifier<List<SuggestedPlace>> placesNotifier = ValueNotifier([]);
   final TextEditingController _textController = TextEditingController();
   String searchedText = '';
   @override
   void initState() {
     super.initState();
-    placesSearch = ms.PlacesSearch(
+    placesSearch = SearchBoxAPI(
       apiKey: AppConstants.mapBoxApiCode,
       limit: 5,
     );
@@ -152,29 +153,20 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<List<SuggestedPlace>?> getPlaces(String value) async {
-    List<ms.MapBoxPlace>? rawplaces = await placesSearch.getPlaces(
+    ApiResponse<SuggestionResponse> places = await placesSearch.getSuggestions(
       value,
-      proximity: const ms.LocationIp(),
-    );
-
-    List<ms.MapBoxPlace>? places = await placesSearch.getPlaces(
-      value,
-      proximity: ms.Location(
-        lat: rawplaces![0].center![1],
-        lng: rawplaces[0].center![0],
-      ),
+      proximity: Proximity.LatLong(lat: 19.0596, long: 72.8295),
     );
 
     List<SuggestedPlace> placemarks = [];
-    for (var element in places!) {
+    for (var place in places.success!.suggestions) {
       placemarks.add(SuggestedPlace(
-        mainLocation: element.text!,
-        completeAddress: element.placeName!,
-        location: ms.Location(
-          lat: element.center![1],
-          lng: element.center![0],
-        ),
-      ));
+          mainLocation: place.name,
+          completeAddress: place.placeFormatted,
+          location: const LatLng(
+            19.312213,
+            19.12315,
+          )));
     }
     return placemarks;
   }
@@ -228,7 +220,7 @@ class _SearchPageState extends State<SearchPage> {
 class SuggestedPlace {
   final String mainLocation;
   final String completeAddress;
-  final ms.Location location;
+  final LatLng location;
 
   SuggestedPlace({
     required this.mainLocation,

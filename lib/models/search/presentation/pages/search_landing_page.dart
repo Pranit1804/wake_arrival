@@ -9,10 +9,9 @@ import 'package:wake_arrival/common/constants/layout_constants.dart';
 import 'package:wake_arrival/common/theme/app_text_theme.dart';
 import 'package:wake_arrival/models/routes/routes_constant.dart';
 import 'package:latlong2/latlong.dart'; // For handling geographical coordinates
-import 'package:google_maps_flutter/google_maps_flutter.dart' as googleMaps;
 
 class SearchLandingPageArgs {
-  final Location? searchedLatLng;
+  final LatLng? searchedLatLng;
 
   SearchLandingPageArgs({this.searchedLatLng});
 }
@@ -26,11 +25,11 @@ class SearchLandingPage extends StatefulWidget {
 }
 
 class _SearchLandingPageState extends State<SearchLandingPage> {
-  final ValueNotifier<List<MapBoxPlace>> placesNotifier = ValueNotifier([]);
+  final ValueNotifier<List<Suggestion>> placesNotifier = ValueNotifier([]);
 
-  var placesSearch = PlacesSearch(
+  SearchBoxAPI search = SearchBoxAPI(
     apiKey: AppConstants.mapBoxApiCode,
-    limit: 5,
+    limit: 6,
   );
 
   late double _radiusInPixels;
@@ -46,8 +45,8 @@ class _SearchLandingPageState extends State<SearchLandingPage> {
   void setLatLng() {
     latLng = widget.args.searchedLatLng != null
         ? LatLng(
-            widget.args.searchedLatLng!.lat,
-            widget.args.searchedLatLng!.lng,
+            widget.args.searchedLatLng!.latitude,
+            widget.args.searchedLatLng!.longitude,
           )
         : LatLng(19.0760, 72.8777);
   }
@@ -212,14 +211,16 @@ class _SearchLandingPageState extends State<SearchLandingPage> {
 
   void onTextChanged(String value) async {
     if (value.length % 3 == 0) {
-      List<MapBoxPlace>? places = await getPlaces(value);
+      List<Suggestion>? places = await getPlaces(value);
+
       placesNotifier.value = [...places ?? []];
     }
   }
 
-  Future<List<MapBoxPlace>?> getPlaces(String value) async {
-    List<MapBoxPlace>? places = await placesSearch.getPlaces(value);
-    return places;
+  Future<List<Suggestion>?> getPlaces(String value) async {
+    ApiResponse<SuggestionResponse> searchPlace =
+        await search.getSuggestions(value);
+    return searchPlace.success?.suggestions;
   }
 
   Widget singleAutocompleteText({
