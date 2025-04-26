@@ -49,7 +49,7 @@ class _HomeState extends State<Home> {
   Widget setDestinationButton() {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pushNamed(RouteConstant.searchLandingPage);
+        Navigator.of(context).pushNamed(RouteConstant.searchPage);
       },
       child: const Center(
         child: PrimaryButton(
@@ -62,11 +62,6 @@ class _HomeState extends State<Home> {
   Widget appBar() {
     return Row(
       children: [
-        const Icon(
-          Icons.arrow_back_ios,
-          color: AppColor.primaryTextColor,
-          size: LayoutConstants.dimen_18,
-        ),
         const SizedBox(
           width: LayoutConstants.dimen_8,
         ),

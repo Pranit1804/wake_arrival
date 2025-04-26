@@ -45,17 +45,18 @@ class _SearchPageState extends State<SearchPage> {
       body: Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height * 0.15,
+            height: LayoutConstants.dimen_130,
             width: double.infinity,
             color: AppColor.primaryColor,
+            padding: const EdgeInsets.only(
+              top: LayoutConstants.dimen_60,
+              bottom: LayoutConstants.dimen_10,
+            ),
             child: Column(
               children: [
-                const SizedBox(
-                  height: LayoutConstants.dimen_70,
-                ),
                 Container(
                   width: double.infinity,
-                  height: LayoutConstants.dimen_50,
+                  height: LayoutConstants.dimen_55,
                   color: AppColor.primaryDarkColor.withOpacity(0.8),
                   margin: const EdgeInsets.symmetric(
                     horizontal: LayoutConstants.dimen_10,
@@ -100,14 +101,37 @@ class _SearchPageState extends State<SearchPage> {
                                   (index) => Column(
                                         children: [
                                           InkWell(
-                                            onTap: () {
+                                            onTap: () async {
+                                              final place = await placesSearch
+                                                  .getPlace(placesNotifier
+                                                      .value[index].id);
+
                                               Navigator.pushNamed(
                                                 context,
                                                 RouteConstant.searchLandingPage,
                                                 arguments:
                                                     SearchLandingPageArgs(
-                                                  searchedLatLng: placesNotifier
-                                                      .value[index].location,
+                                                  searchedLatLng: LatLng(
+                                                    place
+                                                        .success!
+                                                        .features[0]
+                                                        .geometry
+                                                        .coordinates
+                                                        .lat,
+                                                    place
+                                                        .success!
+                                                        .features[0]
+                                                        .geometry
+                                                        .coordinates
+                                                        .long,
+                                                  ),
+                                                  titleAddress: placesNotifier
+                                                      .value[index]
+                                                      .mainLocation,
+                                                  subtitleAddress:
+                                                      placesNotifier
+                                                          .value[index]
+                                                          .completeAddress,
                                                 ),
                                               );
                                             },
@@ -161,6 +185,7 @@ class _SearchPageState extends State<SearchPage> {
     List<SuggestedPlace> placemarks = [];
     for (var place in places.success!.suggestions) {
       placemarks.add(SuggestedPlace(
+          id: place.mapboxId,
           mainLocation: place.name,
           completeAddress: place.placeFormatted,
           location: const LatLng(
@@ -203,12 +228,15 @@ class _SearchPageState extends State<SearchPage> {
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
             Text(
               subtitle ?? "",
               style: AppTextTheme.caption.copyWith(
                 color: Colors.white,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -218,11 +246,13 @@ class _SearchPageState extends State<SearchPage> {
 }
 
 class SuggestedPlace {
+  final String id;
   final String mainLocation;
   final String completeAddress;
   final LatLng location;
 
   SuggestedPlace({
+    required this.id,
     required this.mainLocation,
     required this.completeAddress,
     required this.location,

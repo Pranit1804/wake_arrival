@@ -13,10 +13,8 @@ abstract class SearchRoutes {
   ) =>
       {
         RouteConstant.searchLandingPage: (context) {
-          final args = settings.arguments as SearchLandingPageArgs?;
-          return SearchLandingPage(
-            args: args ?? SearchLandingPageArgs(),
-          );
+          final args = settings.arguments as SearchLandingPageArgs;
+          return SearchLandingPage(args: args);
         },
       };
 }
