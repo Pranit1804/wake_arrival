@@ -1,4 +1,5 @@
 {
   "debug.allowBreakpointsEverywhere": true,
-  "debug.toolBarLocation": "commandCenter"
+  "debug.toolBarLocation": "commandCenter",
+  "dart.flutterSdkPath": ".fvm/versions/3.29.3"
 }

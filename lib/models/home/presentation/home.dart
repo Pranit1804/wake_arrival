@@ -40,21 +40,20 @@ class _HomeState extends State<Home> {
   }
 
   Widget viewPreviosDestionations() {
-    return const Center(
+    return Center(
         child: PrimaryButton(
       title: HomeConstants.viewPreviousDestination,
+      onTap: () {},
     ));
   }
 
   Widget setDestinationButton() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(RouteConstant.searchPage);
-      },
-      child: const Center(
-        child: PrimaryButton(
-          title: HomeConstants.setDestination,
-        ),
+    return Center(
+      child: PrimaryButton(
+        title: HomeConstants.setDestination,
+        onTap: () {
+          Navigator.of(context).pushNamed(RouteConstant.searchPage);
+        },
       ),
     );
   }
