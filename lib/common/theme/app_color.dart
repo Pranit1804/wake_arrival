@@ -9,4 +9,5 @@ class AppColor {
   static const primaryDarkColor = Color(0xff0f2410);
   static const primaryButtonColor = Color(0xffff9800);
   static const primaryTextColor = Colors.white;
+  static const linkColor = Color(0xFF0D47A1);
 }

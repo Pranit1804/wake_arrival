@@ -39,51 +39,53 @@ class _CustomMapState extends State<CustomMap> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
-      options: MapOptions(
-        onTap: (position, latLong) {
-          setState(() {
-            latLng = latLong;
-          });
-        },
-        center: latLng,
-        zoom: zoomLevel,
-        onPositionChanged: (position, hasGesture) {
-          _calculateRadiusInPixels();
-        },
+    return Expanded(
+      child: FlutterMap(
+        options: MapOptions(
+          onTap: (position, latLong) {
+            setState(() {
+              latLng = latLong;
+            });
+          },
+          center: latLng,
+          zoom: zoomLevel,
+          onPositionChanged: (position, hasGesture) {
+            _calculateRadiusInPixels();
+          },
+        ),
+        children: [
+          TileLayer(
+            urlTemplate: AppConstants.mapBoxStyleTileUrl,
+            userAgentPackageName: "com.bytecoder.wakearrival.wakeArrival",
+          ),
+          CircleLayer(
+            circles: [
+              CircleMarker(
+                point: latLng, // Center of the circle
+                radius: _radiusInPixels, // Radius in meters (1km)
+                color: Colors.blue.withOpacity(0.4),
+                borderStrokeWidth: 2,
+                borderColor: Colors.blue,
+              ),
+            ],
+          ),
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: latLng,
+                width: 20,
+                height: 20,
+                builder: (BuildContext context) {
+                  return const Icon(
+                    Icons.pin_drop_sharp,
+                    color: Colors.red,
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
       ),
-      children: [
-        TileLayer(
-          urlTemplate: AppConstants.mapBoxStyleTileUrl,
-          userAgentPackageName: "com.bytecoder.wakearrival.wakeArrival",
-        ),
-        CircleLayer(
-          circles: [
-            CircleMarker(
-              point: latLng, // Center of the circle
-              radius: _radiusInPixels, // Radius in meters (1km)
-              color: Colors.blue.withOpacity(0.4),
-              borderStrokeWidth: 2,
-              borderColor: Colors.blue,
-            ),
-          ],
-        ),
-        MarkerLayer(
-          markers: [
-            Marker(
-              point: latLng,
-              width: 20,
-              height: 20,
-              builder: (BuildContext context) {
-                return const Icon(
-                  Icons.pin_drop_sharp,
-                  color: Colors.red,
-                );
-              },
-            ),
-          ],
-        ),
-      ],
     );
   }
 }
