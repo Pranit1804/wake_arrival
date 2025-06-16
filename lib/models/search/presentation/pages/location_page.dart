@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:geofence_foreground_service/constants/geofence_event_type.dart';
-import 'package:geofence_foreground_service/geofence_foreground_service.dart'
-    as gfs;
 import 'package:latlong2/latlong.dart';
-import 'package:latlng/latlng.dart' as lng;
 import 'package:mapbox_search/mapbox_search.dart';
-import 'package:location/location.dart' as loc;
 import 'package:wake_arrival/common/constants/app_constants.dart';
 import 'package:wake_arrival/common/constants/layout_constants.dart';
 import 'package:wake_arrival/common/services/geofencing_service.dart';
@@ -14,8 +9,7 @@ import 'package:wake_arrival/common/theme/app_color.dart';
 import 'package:wake_arrival/common/theme/app_text_theme.dart';
 import 'package:wake_arrival/common/widgets/custom_map.dart';
 import 'package:wake_arrival/common/widgets/primary_button.dart';
-import 'package:wake_arrival/main.dart';
-import 'package:geofence_foreground_service/models/zone.dart';
+
 import 'package:wake_arrival/models/routes/routes_constant.dart';
 import 'package:wake_arrival/models/search/search_constant.dart';
 

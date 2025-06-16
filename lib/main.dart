@@ -5,8 +5,10 @@ import 'package:geofence_foreground_service/constants/geofence_event_type.dart';
 import 'package:geofence_foreground_service/geofence_foreground_service.dart';
 import 'package:wake_arrival/app.dart';
 import 'package:wake_arrival/common/services/audio_service.dart';
+import 'package:wake_arrival/di/injector_config.dart';
 
 void main() async {
+  InjectorConfig.setUp();
   runApp(const App());
 }
 
