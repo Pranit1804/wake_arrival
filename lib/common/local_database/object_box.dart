@@ -1,6 +1,7 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:wake_arrival/models/home/data/entity/home_geofencing_detail_entity.dart';
 import 'package:wake_arrival/objectbox.g.dart';
 
 class ObjectBox {
@@ -9,7 +10,11 @@ class ObjectBox {
   static late final Store obStore;
   static const String dbName = 'wake-arrival-objectbox_v1';
 
-  ObjectBox._create(this.store) {}
+  static late final Box<HomeGeofencingDetailEntity> _homeGeoFencingDetailBox;
+
+  ObjectBox._create(this.store) {
+    _homeGeoFencingDetailBox = Box<HomeGeofencingDetailEntity>(store);
+  }
 
   static Future<ObjectBox> create({
     String? directoryPath,
@@ -35,4 +40,7 @@ class ObjectBox {
       return ObjectBox._create(store);
     }
   }
+
+  static Box<HomeGeofencingDetailEntity> getHomeGeofencingDetailEntity() =>
+      _homeGeoFencingDetailBox;
 }

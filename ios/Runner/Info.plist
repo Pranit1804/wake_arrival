@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Fitpage collects location data to enable the user tracking for the activity being performed and generates activity summary based on distance calculated from location data.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Fitpage collects location data to enable the user tracking for the activity being performed and generates activity summary based on distance calculated from location data.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Fitpage collects location data to enable the user tracking for the activity being performed and generates activity summary based on distance calculated from location data.</string>
 </dict>
 </plist>

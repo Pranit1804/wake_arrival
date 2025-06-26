@@ -1,0 +1,71 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:4540303878512426843",
+      "lastPropertyId": "2:3438332537899419124",
+      "name": "SearchModel",
+      "properties": [
+        {
+          "id": "1:8949197422994284706",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3438332537899419124",
+          "name": "searchKeyword",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:7082283678694823012",
+      "lastPropertyId": "5:8121287403751671307",
+      "name": "HomeGeofencingDetailEntity",
+      "properties": [
+        {
+          "id": "1:8879134801065562158",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4289731446733440699",
+          "name": "locationTitle",
+          "type": 9
+        },
+        {
+          "id": "3:4522992692482397402",
+          "name": "locationSubtitle",
+          "type": 9
+        },
+        {
+          "id": "4:3900802631746419205",
+          "name": "lat",
+          "type": 8
+        },
+        {
+          "id": "5:8121287403751671307",
+          "name": "long",
+          "type": 8
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "2:7082283678694823012",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

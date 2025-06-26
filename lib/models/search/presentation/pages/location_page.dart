@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_search/mapbox_search.dart';
@@ -9,8 +10,10 @@ import 'package:wake_arrival/common/theme/app_color.dart';
 import 'package:wake_arrival/common/theme/app_text_theme.dart';
 import 'package:wake_arrival/common/widgets/custom_map.dart';
 import 'package:wake_arrival/common/widgets/primary_button.dart';
+import 'package:wake_arrival/di/injector.dart';
 
 import 'package:wake_arrival/models/routes/routes_constant.dart';
+import 'package:wake_arrival/models/search/presentation/state/search_bloc.dart';
 import 'package:wake_arrival/models/search/search_constant.dart';
 
 class LocationAddress {
@@ -40,6 +43,7 @@ class LocationPage extends StatefulWidget {
 
 class _LocationPageState extends State<LocationPage> {
   final ValueNotifier<List<Suggestion>> placesNotifier = ValueNotifier([]);
+  late SearchBloc _searchBloc;
 
   SearchBoxAPI search = SearchBoxAPI(
     apiKey: AppConstants.mapBoxApiCode,
@@ -51,7 +55,14 @@ class _LocationPageState extends State<LocationPage> {
   @override
   void initState() {
     super.initState();
+    _searchBloc = Injector.resolve<SearchBloc>();
     setLatLng();
+  }
+
+  void _listenToSearchBloc(BuildContext context, SearchState state) {
+    if (state is GeoFencingInitiatedState) {
+      Navigator.pushNamed(context, RouteConstant.home);
+    }
   }
 
   void setLatLng() {
@@ -61,40 +72,49 @@ class _LocationPageState extends State<LocationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          CustomMap(
-              initialPosition: latLng,
-              onLocationChange: (position) {
-                latLng = position;
-              }),
-          Container(
-            color: Colors.black.withValues(alpha: 0.1),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: LayoutConstants.dimen_180,
-              width: double.infinity,
-              padding: const EdgeInsets.all(LayoutConstants.dimen_16),
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  addressWidget(),
-                  const Spacer(),
-                  PrimaryButton(
-                      title: AppConstants.confirm,
-                      onTap: () async {
-                        GeofencingService.initPlatformState(latLng);
-                      })
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
+      body: BlocConsumer<SearchBloc, SearchState>(
+          bloc: _searchBloc,
+          listener: _listenToSearchBloc,
+          builder: (context, _) {
+            return Column(
+              children: [
+                CustomMap(
+                    initialPosition: latLng,
+                    onLocationChange: (position) {
+                      latLng = position;
+                    }),
+                Container(
+                  color: Colors.black.withValues(alpha: 0.1),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    height: LayoutConstants.dimen_180,
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(LayoutConstants.dimen_16),
+                    decoration: const BoxDecoration(color: Colors.white),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        addressWidget(),
+                        const Spacer(),
+                        PrimaryButton(
+                          title: AppConstants.confirm,
+                          onTap: () async {
+                            _searchBloc.add(
+                              ConfirmLocationEvent(
+                                  latLng: latLng, address: widget.args.address),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            );
+          }),
     );
   }
 

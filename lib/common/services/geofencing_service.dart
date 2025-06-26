@@ -8,14 +8,22 @@ import 'package:geofence_foreground_service/geofence_foreground_service.dart'
 import 'package:wake_arrival/main.dart';
 
 class GeofencingService {
-  static Future<void> initPlatformState(LatLng latLng) async {
+  static Future<bool> initPlatformState(LatLng latLng) async {
     bool serviceEnabled;
+    final location = loc.Location.instance;
+
+    bool locationServiceAccessible =
+        await location.hasPermission() == loc.PermissionStatus.granted;
+
+    if (!locationServiceAccessible) {
+      return false;
+    }
 
     serviceEnabled = await loc.Location().serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await loc.Location().requestService();
       if (!serviceEnabled) {
-        return;
+        return false;
       }
     } // Remember to handle permissions before initiating the plugin
 
@@ -30,7 +38,7 @@ class GeofencingService {
     );
 
     if (hasServiceStarted) {
-      await gfs.GeofenceForegroundService().addGeofenceZone(
+      return await gfs.GeofenceForegroundService().addGeofenceZone(
         zone: Zone(
           id: 'zone#1_id',
           radius: 400, // measured in meters
@@ -48,6 +56,8 @@ class GeofencingService {
           initialTrigger: GeofenceEventType.unKnown,
         ),
       );
+    } else {
+      return false;
     }
   }
 }

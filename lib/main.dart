@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:geofence_foreground_service/constants/geofence_event_type.dart';
 import 'package:geofence_foreground_service/geofence_foreground_service.dart';
 import 'package:wake_arrival/app.dart';
+import 'package:wake_arrival/common/local_database/object_box.dart';
 import 'package:wake_arrival/common/services/audio_service.dart';
 import 'package:wake_arrival/di/injector_config.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   InjectorConfig.setUp();
+  await ObjectBox.create();
   runApp(const App());
 }
 
