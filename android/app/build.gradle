@@ -5,6 +5,7 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+
 android {
     namespace = "com.bytecode.wake_arrival"
     compileSdk = flutter.compileSdkVersion
@@ -30,11 +31,20 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+		release {
+             { 
+                storeFile file("./wake_arrival_release.jks")
+                storePassword "releasekey"
+                keyAlias "releasekey"
+                keyPassword "releasekey"
+            }
+		}
+	}
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+             signingConfig signingConfigs.release
         }
     }
 }

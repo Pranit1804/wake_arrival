@@ -26,4 +26,6 @@ class HomeGeofencingDetailEntity {
         address.titleAddress,
         address.subtitleAddress,
       );
+
+  LatLng get latLng => LatLng(lat, long);
 }

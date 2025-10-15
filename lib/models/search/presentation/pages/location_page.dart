@@ -5,11 +5,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_search/mapbox_search.dart';
 import 'package:wake_arrival/common/constants/app_constants.dart';
 import 'package:wake_arrival/common/constants/layout_constants.dart';
-import 'package:wake_arrival/common/services/geofencing_service.dart';
-import 'package:wake_arrival/common/theme/app_color.dart';
 import 'package:wake_arrival/common/theme/app_text_theme.dart';
 import 'package:wake_arrival/common/widgets/custom_map.dart';
 import 'package:wake_arrival/common/widgets/primary_button.dart';
+import 'package:wake_arrival/common/widgets/primary_link_button.dart';
 import 'package:wake_arrival/di/injector.dart';
 
 import 'package:wake_arrival/models/routes/routes_constant.dart';
@@ -78,11 +77,13 @@ class _LocationPageState extends State<LocationPage> {
           builder: (context, _) {
             return Column(
               children: [
-                CustomMap(
-                    initialPosition: latLng,
-                    onLocationChange: (position) {
-                      latLng = position;
-                    }),
+                Expanded(
+                  child: CustomMap(
+                      initialPosition: latLng,
+                      onLocationChange: (position) {
+                        latLng = position;
+                      }),
+                ),
                 Container(
                   color: Colors.black.withValues(alpha: 0.1),
                 ),
@@ -97,6 +98,7 @@ class _LocationPageState extends State<LocationPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Gap(LayoutConstants.dimen_8),
                         addressWidget(),
                         const Spacer(),
                         PrimaryButton(
@@ -127,37 +129,24 @@ class _LocationPageState extends State<LocationPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(
-              flex: 3,
-              child: Text(
-                widget.args.address.titleAddress,
-                style: AppTextTheme.headline6,
-              ),
+            Text(
+              widget.args.address.titleAddress,
+              style: AppTextTheme.headline6,
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, RouteConstant.searchPage);
-              },
-              child: Flexible(
-                  flex: 1,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(top: LayoutConstants.dimen_3),
-                    child: Text(
-                      SearchConstant.change,
-                      style: AppTextTheme.bodyText2.copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationStyle: TextDecorationStyle.dashed,
-                        decorationColor: AppColor.linkColor,
-                        color: AppColor.linkColor,
-                      ),
-                    ),
-                  )),
-            ),
+                onTap: () {
+                  Navigator.pushNamed(context, RouteConstant.searchPage);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: LayoutConstants.dimen_3),
+                  child: PrimaryLinkButton(
+                    title: SearchConstant.change,
+                  ),
+                )),
           ],
         ),
-        const Gap(LayoutConstants.dimen_10),
+        const Gap(LayoutConstants.dimen_8),
         Text(widget.args.address.subtitleAddress),
         const Gap(LayoutConstants.dimen_10),
       ],

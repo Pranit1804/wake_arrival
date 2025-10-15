@@ -8,6 +8,14 @@ import 'package:geofence_foreground_service/geofence_foreground_service.dart'
 import 'package:wake_arrival/main.dart';
 
 class GeofencingService {
+  static Future<LatLng?> getCurrentLocation() async {
+    final location = loc.Location.instance;
+    loc.LocationData userLocation = await location.getLocation();
+    return userLocation.latitude != null && userLocation.longitude != null
+        ? LatLng(userLocation.latitude!, userLocation.longitude!)
+        : null;
+  }
+
   static Future<bool> initPlatformState(LatLng latLng) async {
     bool serviceEnabled;
     final location = loc.Location.instance;
@@ -16,7 +24,7 @@ class GeofencingService {
         await location.hasPermission() == loc.PermissionStatus.granted;
 
     if (!locationServiceAccessible) {
-      return false;
+      await location.requestPermission();
     }
 
     serviceEnabled = await loc.Location().serviceEnabled();

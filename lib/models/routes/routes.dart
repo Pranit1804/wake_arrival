@@ -17,6 +17,9 @@ abstract class Routes {
         case RouteConstant.searchLandingPage:
           builder = SearchRoutes.getRoutesWithSettings(settings)[settings.name];
           break;
+        case RouteConstant.fullMapPage:
+          builder = HomeRoutes.getRoutesWithSettings(settings)[settings.name];
+          break;
       }
       if (builder != null) {
         return MaterialPageRoute(builder: builder, settings: settings);

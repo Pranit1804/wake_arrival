@@ -8,8 +8,10 @@ import 'package:wake_arrival/common/theme/app_text_theme.dart';
 
 import 'package:wake_arrival/common/widgets/custom_map.dart';
 import 'package:wake_arrival/common/widgets/primary_button.dart';
+import 'package:wake_arrival/common/widgets/primary_link_button.dart';
 import 'package:wake_arrival/di/injector.dart';
 import 'package:wake_arrival/models/home/data/entity/home_geofencing_detail_entity.dart';
+import 'package:wake_arrival/models/home/presentation/full_map_page.dart';
 import 'package:wake_arrival/models/home/presentation/home_constants.dart';
 import 'package:wake_arrival/models/home/presentation/state/home_bloc.dart';
 import 'package:wake_arrival/models/routes/routes_constant.dart';
@@ -52,55 +54,103 @@ class _OngoingTripPageState extends State<OngoingTripPage> {
             child: Column(
               children: [
                 Gap(LayoutConstants.dimen_90),
-                Text(
-                  'Your Ongoing trip',
-                  style: const TextStyle(
-                    fontSize: LayoutConstants.dimen_28,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+                _buildHeader(),
                 Gap(LayoutConstants.dimen_30),
-                Container(
-                  height: 200,
-                  alignment: Alignment.topCenter,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.amber),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: CustomMap(
-                      initialPosition: LatLng(
-                          widget.detailEntity.lat, widget.detailEntity.long),
-                      onLocationChange: (latLng) {},
-                      canInteract: false,
-                    ),
-                  ),
-                ),
-                Gap(LayoutConstants.dimen_30),
+                _buildMap(),
+                Gap(LayoutConstants.dimen_15),
                 Text(
                   "${widget.detailEntity.locationTitle} ${widget.detailEntity.locationSubtitle}",
-                  style: AppTextTheme.bodyText1,
+                  textAlign: TextAlign.center,
+                  style: AppTextTheme.bodyText1.copyWith(
+                    color: Colors.white,
+                    fontSize: LayoutConstants.dimen_18,
+                  ),
                 ),
-                PrimaryButton(
+                Spacer(),
+                PrimaryLinkButton(
                   title: HomeConstants.cancelTrip,
-                  onTap: () {
-                    _homeBloc.add(DeleteOngoingTripEvent());
-                  },
+                  linkColor: Colors.blue,
                 ),
-                Gap(LayoutConstants.dimen_30),
+                Gap(LayoutConstants.dimen_10),
                 PrimaryButton(
                   title: HomeConstants.setAnotherDestination,
                   onTap: () {
                     _homeBloc.add(DeleteOngoingTripEvent());
                     Navigator.pushNamed(
-                        context, RouteConstant.searchLandingPage);
+                      context,
+                      RouteConstant.searchPage,
+                    );
                   },
                 ),
+                Spacer(),
               ],
             ),
           );
         });
+  }
+
+  Widget _buildHeader() {
+    return Text(
+      'Your Ongoing trip',
+      style: const TextStyle(
+        fontSize: LayoutConstants.dimen_28,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildMap() {
+    return Stack(
+      children: [
+        Container(
+          height: 200,
+          alignment: Alignment.topCenter,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.amber),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: CustomMap(
+              initialPosition: widget.detailEntity.latLng,
+              onLocationChange: (latLng) {},
+              canInteract: false,
+            ),
+          ),
+        ),
+        _buildZoomIcon(),
+      ],
+    );
+  }
+
+  Widget _buildZoomIcon() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          RouteConstant.fullMapPage,
+          arguments: FullMapPageArgs(
+              latLng: LatLng(widget.detailEntity.lat, widget.detailEntity.long),
+              showCurrentLatLng: true),
+        );
+      },
+      child: Align(
+        alignment: Alignment.topRight,
+        child: Container(
+          margin: EdgeInsets.only(
+            top: LayoutConstants.dimen_10,
+            right: LayoutConstants.dimen_10,
+          ),
+          height: LayoutConstants.dimen_34,
+          width: LayoutConstants.dimen_34,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+          ),
+          child: Icon(Icons.fullscreen),
+        ),
+      ),
+    );
   }
 }

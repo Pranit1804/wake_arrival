@@ -66,7 +66,7 @@ class _HomeState extends State<Home> {
                                 const SizedBox(
                                   height: LayoutConstants.dimen_22,
                                 ),
-                                viewPreviosDestionations(),
+                                // viewPreviosDestionations(),
                                 const Spacer(),
                               ],
                             ),
