@@ -168,5 +168,5 @@ Built with attention to detail, best practices in Flutter development, and a foc
 
 ## 📞 Contact & Links
 
-- LinkedIn: [your-linkedin](https://www.linkedin.com/in/pranit-bhogale/)
+- LinkedIn: [Pranit Bhogale](https://www.linkedin.com/in/pranit-bhogale/)
 - Email: pranitbhogle@gmail.com
