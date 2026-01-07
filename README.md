@@ -23,7 +23,7 @@ A sophisticated location-based alarm application built with Flutter that intelli
 
 | Map Selection                    | Active Alarm                                  |
 | -------------------------------- | --------------------------------------------- |
-| ![Map View](screenshots/map.png) | ![Active Alarm](screenshots/active_alarm.png) |
+| ![Map View](screenshots/map.png) | ![Active Alarm](screenshots/active.png) |
 
 </div>
 
@@ -67,7 +67,7 @@ A sophisticated location-based alarm application built with Flutter that intelli
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/wake_arrival.git
+   git clone https://github.com/Pranit1804/wake_arrival.git
    cd wake_arrival
    ```
 
@@ -168,6 +168,5 @@ Built with attention to detail, best practices in Flutter development, and a foc
 
 ## 📞 Contact & Links
 
-- GitHub: [your-github-profile](https://github.com/yourusername)
-- LinkedIn: [your-linkedin](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+- LinkedIn: [your-linkedin](https://www.linkedin.com/in/pranit-bhogale/)
+- Email: pranitbhogle@gmail.com
