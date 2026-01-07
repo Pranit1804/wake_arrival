@@ -1,23 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:geofence_foreground_service/constants/geofence_event_type.dart';
-import 'package:geofence_foreground_service/geofence_foreground_service.dart'
-    as gfs;
 import 'package:latlong2/latlong.dart';
-import 'package:latlng/latlng.dart' as lng;
-import 'package:mapbox_search/mapbox_search.dart';
-import 'package:location/location.dart' as loc;
-import 'package:wake_arrival/common/constants/app_constants.dart';
-import 'package:wake_arrival/common/constants/layout_constants.dart';
+import 'package:wake_arrival/common/services/alarm_storage_service.dart';
 import 'package:wake_arrival/common/services/geofencing_service.dart';
 import 'package:wake_arrival/common/theme/app_color.dart';
-import 'package:wake_arrival/common/theme/app_text_theme.dart';
 import 'package:wake_arrival/common/widgets/custom_map.dart';
-import 'package:wake_arrival/common/widgets/primary_button.dart';
-import 'package:wake_arrival/main.dart';
-import 'package:geofence_foreground_service/models/zone.dart';
+import 'package:wake_arrival/common/widgets/location_details_bottom_sheet.dart';
+import 'package:wake_arrival/models/home/data/alarm_model.dart';
 import 'package:wake_arrival/models/routes/routes_constant.dart';
-import 'package:wake_arrival/models/search/search_constant.dart';
 
 class LocationAddress {
   final String titleAddress;
@@ -45,108 +34,116 @@ class LocationPage extends StatefulWidget {
 }
 
 class _LocationPageState extends State<LocationPage> {
-  final ValueNotifier<List<Suggestion>> placesNotifier = ValueNotifier([]);
-
-  SearchBoxAPI search = SearchBoxAPI(
-    apiKey: AppConstants.mapBoxApiCode,
-    limit: 6,
-  );
-
   late LatLng latLng;
 
   @override
   void initState() {
     super.initState();
-    setLatLng();
-  }
-
-  void setLatLng() {
     latLng = widget.args.searchedLatLng;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          CustomMap(
-              initialPosition: latLng,
-              onLocationChange: (position) {
-                latLng = position;
-              }),
-          Container(
-            color: Colors.black.withValues(alpha: 0.1),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: LayoutConstants.dimen_180,
-              width: double.infinity,
-              padding: const EdgeInsets.all(LayoutConstants.dimen_16),
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  addressWidget(),
-                  const Spacer(),
-                  PrimaryButton(
-                      title: AppConstants.confirm,
-                      onTap: () async {
-                        GeofencingService.initPlatformState(latLng);
-                      })
-                ],
-              ),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: AppColor.cardBackground,
+              shape: BoxShape.circle,
             ),
-          )
+            child: const Icon(
+              Icons.arrow_back_ios_new,
+              color: AppColor.primaryTextColor,
+              size: 18,
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: const [
+          // TODO: Get current location
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 16),
+          //   child: IconButton(
+          //     icon: Container(
+          //       padding: const EdgeInsets.all(8),
+          //       decoration: const BoxDecoration(
+          //         color: AppColor.cardBackground,
+          //         shape: BoxShape.circle,
+          //       ),
+          //       child: const Icon(
+          //         Icons.my_location,
+          //         color: AppColor.accentPurple,
+          //         size: 20,
+          //       ),
+          //     ),
+          //     onPressed: () {
+          //     },
+          //   ),
+          // ),
         ],
       ),
-    );
-  }
+      body: Stack(
+        children: [
+          CustomMap(
+            initialPosition: latLng,
+            onLocationChange: (position) {
+              setState(() {
+                latLng = position;
+              });
+            },
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: LocationDetailsBottomSheet(
+              title: widget.args.address.titleAddress,
+              subtitle: widget.args.address.subtitleAddress,
+              onConfirm: () async {
+                try {
+                  // Create and save alarm
+                  final alarm = AlarmModel.fromLocation(
+                    destinationName: widget.args.address.titleAddress,
+                    address: widget.args.address.subtitleAddress,
+                    latitude: latLng.latitude,
+                    longitude: latLng.longitude,
+                  );
 
-  Widget addressWidget() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              flex: 3,
-              child: Text(
-                widget.args.address.titleAddress,
-                style: AppTextTheme.headline6,
-              ),
-            ),
-            const Spacer(),
-            GestureDetector(
-              onTap: () {
+                  await AlarmStorageService.saveActiveAlarm(alarm);
+
+                  // Initialize geofencing
+                  await GeofencingService.initPlatformState(latLng);
+
+                  if (context.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      RouteConstant.home,
+                      (route) => false,
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to setup alarm: $e'),
+                        backgroundColor: AppColor.accentPink,
+                      ),
+                    );
+                  }
+                }
+              },
+              onChangeLocation: () {
                 Navigator.pushNamed(context, RouteConstant.searchPage);
               },
-              child: Flexible(
-                  flex: 1,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(top: LayoutConstants.dimen_3),
-                    child: Text(
-                      SearchConstant.change,
-                      style: AppTextTheme.bodyText2.copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationStyle: TextDecorationStyle.dashed,
-                        decorationColor: AppColor.linkColor,
-                        color: AppColor.linkColor,
-                      ),
-                    ),
-                  )),
             ),
-          ],
-        ),
-        const Gap(LayoutConstants.dimen_10),
-        Text(widget.args.address.subtitleAddress),
-        const Gap(LayoutConstants.dimen_10),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
