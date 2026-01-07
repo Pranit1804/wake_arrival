@@ -116,8 +116,10 @@ class _LocationPageState extends State<LocationPage> {
 
                   await AlarmStorageService.saveActiveAlarm(alarm);
 
-                  // Initialize geofencing
-                  await GeofencingService.initPlatformState(latLng);
+                  // Initialize geofencing (pass context for disclosure dialog)
+                  if (context.mounted) {
+                    await GeofencingService.initPlatformState(latLng, context);
+                  }
 
                   if (context.mounted) {
                     Navigator.pushNamedAndRemoveUntil(

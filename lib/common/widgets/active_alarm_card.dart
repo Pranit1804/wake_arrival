@@ -185,20 +185,20 @@ class ActiveAlarmCard extends StatelessWidget {
               const SizedBox(width: 12),
 
               // Edit Button
-              IconButton(
-                onPressed: onEdit,
-                icon: const Icon(
-                  Icons.edit_outlined,
-                  color: AppColor.accentPurple,
-                  size: 22,
-                ),
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColor.accentPurple.withOpacity(0.1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
+              // IconButton(
+              //   onPressed: onEdit,
+              //   icon: const Icon(
+              //     Icons.edit_outlined,
+              //     color: AppColor.accentPurple,
+              //     size: 22,
+              //   ),
+              //   style: IconButton.styleFrom(
+              //     backgroundColor: AppColor.accentPurple.withOpacity(0.1),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(10),
+              //     ),
+              //   ),
+              // ),
 
               const SizedBox(width: 8),
 
